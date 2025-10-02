@@ -1,0 +1,158 @@
+---
+title: "Hábitos de sueño en la vida cotidiana"
+author: "Mariana Méndez Pérez"
+date: "2025-09-28"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+---
+<style>
+/* Fondo general y tipografía */
+body {
+  background-color: #f4f8fb; /* azul muy claro */
+  font-family: "Helvetica", "Arial", sans-serif;
+  color: #333333;
+  line-height: 1.6;
+  text-align: justify;
+}
+
+/* Estilo para títulos */
+h1 {
+  text-align: center;
+  background: linear-gradient(90deg, #6a8caf, #7aa874);
+  color: white;
+  padding: 18px;
+  border-radius: 12px;
+  margin-bottom: 30px;
+}
+
+h2 {
+  color: #6a8caf; 
+  border-left: 6px solid #7aa874;
+  padding-left: 10px;
+  margin-top: 40px;
+}
+
+h3 {
+  color: #b3a2c7;
+}
+
+/* Subtítulos */
+h2 {
+  color: #7aa874; /* verde suave */
+}
+
+h3 {
+  color: #b3a2c7; /* lavanda */
+}
+
+/* Links */
+a {
+  color: #6a8caf;
+  text-decoration: none;
+}
+a:hover {
+  color: #4a6a85;
+  text-decoration: underline;
+}
+
+/* Estilos del TOC (índice) */
+.tocify {
+  margin-left: 0px !important;   /* que se mantenga bien a la izquierda */
+  margin-right: 30px !important; /* agrega espacio entre el índice y el contenido */
+  padding: 10px !important;      /* aire interno */
+  max-width: 240px !important;   /* controla el ancho */
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+/* Caja de info (similar al estilo de la guía) */
+.info-box {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 15px;
+  margin: 15px 0;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+/* Tarjetas */
+.card {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  margin: 20px 0;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+  border: 1px solid #d9e2ec;
+}
+
+a {
+  color: #6a8caf;
+  text-decoration: none;
+}
+a:hover {
+  color: #4a6a85;
+  text-decoration: underline;
+}
+
+/* Lista sin viñetas */
+ul {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+</style>
+
+
+# Información de la Tarea
+<div class="card">
+**Fecha de realización:** Del 29 de septiembre al 6 de octubre de 2025  
+**Hora límite:** 6 de octubre de 2025 a las 11:59 p.m.  
+**Plataforma de entrega:** CUC Virtual  
+**Formato requerido:** Documento HTML generado con RMarkdown, publicado públicamente como WEB  
+</div>
+
+# Introducción
+<div class="card">
+Este cuestionario tiene como propósito recopilar información sobre los hábitos de sueño en la vida cotidiana. Los datos obtenidos serán utilizados únicamente con fines académicos, como parte de un análisis estadístico en el curso de *Introducción a la Estadística*.
+</div>
+
+# Importancia del Estudio
+<div class="card">
+Esta investigación adquiere relevancia debido a que los hábitos de sueño constituyen un pilar fundamental para la salud y el bienestar integral. En la actualidad, factores como el uso de tecnología, estrés y ritmos de vida acelerados han transformado los patrones de descanso, afectando:
+
+**Salud física:** Sistema inmunológico, metabolismo y recuperación muscular
+
+**Salud mental:** Función cognitiva, memoria y regulación emocional  
+
+**Rendimiento:** Capacidad de concentración y productividad diaria
+
+**Calidad de vida:** Bienestar general y relaciones interpersonales
+
+El estudio permitirá identificar tendencias actuales en la población y establecer relaciones entre prácticas cotidianas y calidad del descanso, contribuyendo a la comprensión de este aspecto vital de la salud pública.
+</div>
+
+# Objetivo
+<div class="card">
+Analizar los patrones de sueño y su relación con la rutina diaria de los participantes, con el fin de identificar tendencias y diferencias entre grupos de personas.  
+</div>
+
+# Población Meta  
+<div class="card">
+**Características demográficas:** 
+Personas jóvenes y adultas entre 15 y 60 años
+
+**Criterios de inclusión:** Mayores de 15 años que completen el formulario voluntariamente
+
+**Criterios de exclusión:** Menores de 15 años y formularios incompletos
+
+**Tamaño estimado:** Muestreo por conveniencia, dependiendo de las respuestas recibidas 
+</div>
+
+# Enlace al cuestionario
+<div class="card">
+[Responder el cuestionario aquí](https://forms.office.com/Pages/ResponsePage.aspx?id=JWWIElhdgUiX6YAgrDvPZKP1y5mrFDxJj6H5UahRgHFURTNLSldWQ1FSNFJWSEo3Nk5WWFpFUjlYNS4u) 
+
+*Tiempo estimado: 3-5 minutos*
+</div>
