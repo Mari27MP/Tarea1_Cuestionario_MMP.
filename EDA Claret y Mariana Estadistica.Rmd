@@ -1,0 +1,875 @@
+---
+title: "Taller de Analisis Exploratorio de Datos"
+author: "Mariana Mendez y Claret Rodriguez"
+date: "2025-12-04"
+output: html_document
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+options(scipen = 999)
+```
+
+# 1 Introducción al Taller
+
+## 1.1 Objetivo General
+
+En este taller práctico, se trabajará con un conjunto de datos real que contiene registros académicos de 2000 estudiantes. El estudiante aprenderá a realizar un Análisis Exploratorio de Datos (EDA) utilizando R Studio, desde la importación de datos hasta la construcción de un modelo de regresión lineal simple.
+
+## 1.2 ¿Qué es el EDA?
+
+El Análisis Exploratorio de Datos (EDA) es el proceso de examinar y resumir las características principales de un conjunto de datos con el fin de:
+
+* Comprender la estructura y contenido de los datos
+* Detectar errores, valores faltantes o atípicos
+* Calcular estadísticas descriptivas
+* Visualizar patrones mediante gráficos
+* Verificar supuestos estadísticos
+* Identificar relaciones entre variables
+
+## 1.3 Objetivos Específicos
+
+1. Importar y explorar datos en R Studio
+2. Calcular medidas de tendencia central y dispersión
+3. Crear gráficos estadísticos
+4. Evaluar la normalidad de una variable
+5. Analizar correlación entre dos variables
+6. Construir un modelo de regresión lineal simple
+
+## 1.4 Modalidad de Trabajo
+
+* Modalidad: Individual o en parejas
+* Herramienta: R Studio
+* Duración estimada: 2-3 horas
+* Entregable: Script de R (.R) con todos los análisis
+
+# 2 Descripción del Conjunto de Datos
+
+## 2.1 Contexto del Dataset
+
+El dataset "Student Performance Prediction" fue obtenido de Kaggle y contiene información académica de 2000 estudiantes.
+
+## 2.2 Variables del Dataset
+
+* Student ID
+* Attendance Rate
+* Internal Test 1
+* Internal Test 2
+* Assignment Avg
+* Study Hours Per Day
+* Final Exam Mark
+
+## 2.3 Flujo del Análisis EDA
+
+1. Importación de datos
+2. Exploración inicial
+3. Limpieza de datos
+4. Estadística descriptiva
+5. Visualización
+6. Normalidad
+7. Correlación
+8. Regresión lineal
+
+# 3 Configuración del Entorno de Trabajo
+
+## 3.1 Instalación de Paquetes
+
+```{r, eval=FALSE}
+install.packages("ggplot2")
+install.packages("dplyr")
+install.packages("corrplot")
+install.packages("reshape2")
+```
+
+## 3.2 Cargar las Librerías
+
+```{r}
+library(ggplot2)
+library(dplyr)
+library(corrplot)
+library(reshape2)
+```
+
+## 3.3 Importar el Dataset
+
+```{r}
+datos <- read.csv("C:/Users/mari2/Desktop/Calificaciones.csv")
+cat("El dataset tiene", nrow(datos), "filas y", ncol(datos), "columnas\n")
+```
+
+
+### Actividad 
+
+El dataset tiene 2000 filas y 7 columnas
+
+# 4 Exploración Inicial de los Datos
+
+## 4.1 Primeras y Últimas Filas
+
+```{r}
+head(datos)
+tail(datos)
+```
+
+## 4.2 Estructura del Dataset
+
+```{r}
+str(datos)
+names(datos)
+```
+
+### Actividad 
+
+¿Cuantas variables numericas existen?
+
+Exisiten seis variables numericas 
+
+¿Existe alguna variable de tipo texto (character)?
+
+El dataset tiene una variable de tipo texto: Student_ID
+
+## 4.3 Resumen Estadístico
+
+```{r}
+summary(datos)
+```
+### Actividad 
+
+Con el resultado de summary(datos), se deben anotar los valores para la variable Final Exam Mark:
+
+Mínimo: 25.00
+
+Máximo: 100.00
+
+Mediana: 65.00
+
+Media: 64.86
+
+
+# 5 Limpieza y Preparación de Datos
+
+## 5.1 Renombrar las Columnas
+
+```{r}
+colnames(datos) <- c(
+  "ID",
+  "Asistencia",
+  "Examen_Interno_1",
+  "Examen_Interno_2",
+  "Promedio_Tareas",
+  "Horas_Estudio",
+  "Nota_Final"
+)
+names(datos)
+```
+
+## 5.2 Valores Faltantes
+
+```{r}
+colSums(is.na(datos))
+cat("Total de valores faltantes:", sum(is.na(datos)), "\n")
+```
+### Actividad 
+
+¿Existen valores faltantes en el dataset? ¿En cuales variables?
+
+No exisiten valores faltantes en el dataset. 
+
+# 6 Estadística Descriptiva
+
+## 6.1 Tendencia Central
+
+```{r}
+media <- mean(datos$Nota_Final)
+mediana <- median(datos$Nota_Final)
+
+tabla_freq <- table(round(datos$Nota_Final, 0))
+moda <- as.numeric(names(tabla_freq)[which.max(tabla_freq)])
+
+media
+mediana
+moda
+```
+### Actividad 
+
+Se deben calcular las medidas de tendencia central para Nota Final y anotar los resultados:
+
+media 64.855
+
+mediana 65
+
+moda 66
+
+
+## 6.2 Dispersión
+
+```{r}
+varianza <- var(datos$Nota_Final)
+desv_est <- sd(datos$Nota_Final)
+cuartiles <- quantile(datos$Nota_Final, probs = c(0.25, 0.50, 0.75))
+rango <- max(datos$Nota_Final) - min(datos$Nota_Final)
+
+varianza
+desv_est
+cuartiles
+rango
+```
+### Actividad 
+
+Se deben calcular las medidas de dispersi´on para Nota Final:
+
+Varianza: 128.6243  
+
+Desviación Estándar: 11.34126  
+
+Q1: 58
+
+Q2: 65  
+
+Q3: 73  
+
+Rango: 75  
+
+
+# 7 Visualización de Datos
+
+## 7.1 Gráfico de Pastel
+
+```{r}
+datos$Rendimiento <- cut(datos$Nota_Final,
+ breaks = c(0, 60, 70, 80, 90, 100),
+ labels = c("Reprobado", "Suficiente", "Bueno", "Muy Bueno", "Excelente"),
+ include.lowest = TRUE)
+
+frecuencias <- table(datos$Rendimiento)
+porcentajes <- round(prop.table(frecuencias) * 100, 1)
+etiquetas <- paste(names(frecuencias), "\n", porcentajes, "%")
+
+pie(frecuencias, labels = etiquetas,
+ main = "Distribución del Rendimiento Académico")
+```
+
+
+### Actividad 
+
+
+Se debe observar el grafico de pastel y responder:
+
+1. ¿Cual es la categorıa con mas estudiantes?
+
+La categoría con más estudiantes es "Suficiente" (34.8 %)
+
+2. ¿Que porcentaje de estudiantes reprobo?
+
+El porcentaje de estudiantes que reprobó es 33.8 %.
+
+
+## 7.2 Barras Horizontales
+
+```{r}
+
+datos$Nivel_Asistencia <- factor(
+  cut(datos$Asistencia,
+      breaks = c(0, 60, 75, 90, 100),
+      labels = c("Bajo", "Regular", "Bueno", "Excelente"),
+      include.lowest = TRUE),
+  levels = c("Bajo", "Regular", "Bueno", "Excelente")
+)
+
+freq_asistencia <- table(datos$Nivel_Asistencia)
+
+print(freq_asistencia)
+
+# Para verlo más claro:
+cat("Frecuencias por nivel:\n")
+cat("Bajo:", freq_asistencia["Bajo"], "\n")
+cat("Regular:", freq_asistencia["Regular"], "\n")
+cat("Bueno:", freq_asistencia["Bueno"], "\n")
+cat("Excelente:", freq_asistencia["Excelente"], "\n\n")
+
+# Encontrar el nivel con menos estudiantes
+cat("Nivel con menos estudiantes:", names(which.min(freq_asistencia)), "\n")
+cat("Número de estudiantes con Excelente:", freq_asistencia["Excelente"])
+
+par(mar = c(5, 8, 4, 2))
+barplot(freq_asistencia,
+        horiz = TRUE,
+        col = c("#FF6B6B", "#FFA94D", "#6BCB77", "#4D96FF"),
+        main = "Estudiantes por Nivel de Asistencia",
+        xlab = "Número de Estudiantes",
+        ylab = "",
+        las = 1,
+        cex.names = 1.1)
+
+mtext("Nivel de Asistencia", side = 2, line = 6)
+```
+
+### Actividad 
+
+Se debe observar el grafico de barras y responder:
+
+1. ¿Cuantos estudiantes tienen asistencia “Excelente”?
+
+486 estudiantes tienen asistencia "Excelente".
+
+2. ¿Cual nivel de asistencia tiene menos estudiantes?
+
+El nivel "Bajo" tiene menos estudiantes, con solo 5 estudiantes.
+
+## 7.3 Boxplot
+
+```{r}
+# ================================
+# DIAGRAMA DE CAJAS Y ESTADISTICAS
+# EXAMENES INTERNOS 1 Y 2
+# ================================
+
+# Crear diagrama de cajas para ambos examenes internos
+boxplot(
+  datos$Examen_Interno_1,
+  datos$Examen_Interno_2,
+  names = c("Examen Interno 1", "Examen Interno 2"),
+  col = c("#4D96FF", "#6BCB77"),
+  main = "Comparacion de Examenes Internos",
+  ylab = "Calificacion (0 - 100)",
+  border = "darkblue"
+)
+
+# Agregar linea de la media del Examen 1
+abline(h = mean(datos$Examen_Interno_1), col = "red", lty = 2)
+
+# ================================
+# ESTADISTICAS EXAMEN INTERNO 1
+# ================================
+cat("=== EXAMEN INTERNO 1 ===\n")
+cat("Media:", round(mean(datos$Examen_Interno_1), 2), "\n")
+cat("Mediana:", round(median(datos$Examen_Interno_1), 2), "\n")
+cat("Desv. Est.:", round(sd(datos$Examen_Interno_1), 2), "\n\n")
+
+# ================================
+# ESTADISTICAS EXAMEN INTERNO 2
+# ================================
+cat("=== EXAMEN INTERNO 2 ===\n")
+cat("Media:", round(mean(datos$Examen_Interno_2), 2), "\n")
+cat("Mediana:", round(median(datos$Examen_Interno_2), 2), "\n")
+cat("Desv. Est.:", round(sd(datos$Examen_Interno_2), 2), "\n")
+
+```
+
+### Actividad
+
+Se deben comparar los dos examenes internos usando el boxplot y las estad´ısticas:
+
+1. ¿Cual examen tiene la mediana mas alta?
+
+El Examen Interno 2 presenta la mediana más alta, lo que indica que, en general, los estudiantes obtuvieron ligeramente mejores resultados en este examen en comparación con el Examen Interno 1.
+
+2. ¿Cual examen tiene mayor dispersion (desviacion estandar)?
+
+El Examen Interno 1 presenta una dispersión ligeramente mayor, ya que su desviación estándar es superior a la del Examen Interno 2. Esto indica que las calificaciones del Examen Interno 1 están un poco más dispersas respecto a su media.
+
+3. ¿Se observan valores atıpicos en alguno de los examenes?
+
+Al analizar el diagrama de cajas, no se observan valores atípicos significativos en ninguno de los dos exámenes, ya que no se presentan puntos aislados fuera de los límites de los bigotes. Esto indica que las calificaciones en ambos exámenes presentan una distribución relativamente homogénea y sin extremos anormales.
+
+
+
+# 7.4 Grafico de Violın
+
+```{r}
+# ================================
+# CREAR GRÁFICO DE VIOLÍN
+# ================================
+ggplot(datos, aes(x = Nivel_Asistencia, y = Nota_Final, fill = Nivel_Asistencia)) +
+  geom_violin(trim = FALSE, alpha = 0.7) +
+  geom_boxplot(width = 0.15, fill = "white") +
+  scale_fill_manual(values = c("#FF6B6B", "#FFA94D", "#6BCB77", "#4D96FF")) +
+  labs(
+    title = "Distribución de Nota Final por Nivel de Asistencia",
+    x = "Nivel de Asistencia",
+    y = "Nota del Examen Final"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "none")
+
+```
+
+### Actividad 
+
+Se debe observar el grafico de violın y responder:
+
+1. ¿Cual nivel de asistencia muestra las notas mas altas?
+
+El nivel de asistencia Excelente es el que muestra las notas finales más altas, ya que presenta las mayores concentraciones de datos en valores superiores (alrededor de 75 a 90 puntos), además de tener la mediana más elevada entre todos los grupos.
+
+2. ¿Se observa alguna diferencia en la forma de las distribuciones?
+
+Sí, se observan diferencias claras en la forma de las distribuciones.
+El nivel Bajo presenta una distribución concentrada en notas bajas, mientras que Regular se centra en valores intermedios.
+El nivel Bueno muestra una distribución más extendida hacia notas altas, y Excelente presenta una concentración claramente desplazada hacia los valores más altos del examen final.
+Esto evidencia una relación positiva entre el nivel de asistencia y el rendimiento académico.
+
+
+
+# 8 Análisis de Normalidad
+
+## 8.1 Histograma
+
+```{r}
+# ================================
+# CREAR HISTOGRAMA DE NOTA FINAL
+# ================================
+hist(
+  datos$Nota_Final,
+  breaks = 20,
+  col = "#4D96FF",
+  border = "white",
+  main = "Histograma de Nota Final",
+  xlab = "Nota del Examen Final",
+  ylab = "Frecuencia",
+  freq = FALSE  # Usar densidad en lugar de frecuencia
+)
+
+# ================================
+# AGREGAR CURVA NORMAL TEÓRICA
+# ================================
+curve(
+  dnorm(x, mean = mean(datos$Nota_Final), sd = sd(datos$Nota_Final)),
+  add = TRUE,
+  col = "red",
+  lwd = 2
+)
+
+# ================================
+# AGREGAR LEYENDA
+# ================================
+legend(
+  "topright",
+  legend = "Curva Normal",
+  col = "red",
+  lwd = 2
+)
+
+```
+
+
+### Actividad
+
+Se debe observar el histograma y responder:
+
+1. ¿El histograma tiene forma de campana?
+
+Sí, el histograma presenta una forma aproximada de campana, ya que la mayor concentración de datos se encuentra en el centro (alrededor de 60–70 puntos) y las frecuencias disminuyen gradualmente hacia ambos extremos. Además, la curva normal teórica se ajusta bastante bien a la forma del histograma.
+
+2. ¿La distribucion parece simetrica o sesgada?
+
+La distribución parece aproximadamente simétrica, aunque se observa un ligero sesgo hacia la derecha, debido a que hay algunos valores altos que se extienden un poco más que los valores bajos. Sin embargo, en general, el comportamiento es muy cercano al de una distribución normal.
+
+
+## 8.2 Gráfico Q-Q
+
+```{r}
+# Crear gráfico Q-Q
+qqnorm(datos$Nota_Final,
+       main = "Gráfico Q-Q: Nota Final",
+       xlab = "Cuantiles Teóricos",
+       ylab = "Cuantiles de los Datos",
+       col = "#4D96FF",
+       pch = 19,
+       cex = 0.6)
+
+# Agregar línea de referencia
+qqline(datos$Nota_Final, col = "red", lwd = 2)
+```
+
+### Actividad 
+
+¿Los puntos siguen la lınea roja?
+
+Sí, los puntos siguen aproximadamente la línea roja a lo largo de la mayor parte de la distribución. Los puntos azules se alinean razonablemente bien con la diagonal roja, especialmente en la región central del gráfico.
+
+¿Existen desviaciones en los extremos?
+
+
+Sí, existen desviaciones leves en los extremos:
+
+En el extremo inferior (esquina inferior izquierda): Los puntos muestran una ligera curvatura por encima de la línea roja, indicando que los valores más bajos son un poco menos extremos de lo esperado en una distribución normal perfecta.
+
+En el extremo superior (esquina superior derecha): Los puntos también muestran una ligera curvatura por encima de la línea, sugiriendo que los valores más altos son ligeramente menos extremos de lo esperado.
+
+Conclusión:
+La distribución de las Notas Finales se aproxima bastante bien a una distribución normal, aunque presenta colas ligeramente menos pesadas que una distribución normal teórica perfecta. Esto significa que hay menos valores extremadamente bajos y extremadamente altos de lo que se esperaría en una distribución normal perfecta.
+
+## 8.3 Pruebas
+
+```{r}
+# =============================================
+# PRUEBA DE NORMALIDAD: SHAPIRO-WILK
+# =============================================
+
+# Prueba de Shapiro-Wilk
+# NOTA: Esta prueba funciona mejor con menos de 5000 datos
+shapiro_test <- shapiro.test(datos$Nota_Final)
+
+cat("=== PRUEBA DE SHAPIRO-WILK ===\n")
+cat("Estadistico W:", round(shapiro_test$statistic, 4), "\n")
+cat("Valor p:", shapiro_test$p.value, "\n")
+
+# Interpretar resultado
+if(shapiro_test$p.value > 0.05) {
+  cat("Conclusion: Los datos SON NORMALES (p > 0.05)\n")
+} else {
+  cat("Conclusion: Los datos NO SON NORMALES (p <= 0.05)\n")
+}
+
+# Prueba de Kolmogorov-Smirnov
+# Primero se estandarizan los datos
+datos_std <- (datos$Nota_Final - mean(datos$Nota_Final)) / sd(datos$Nota_Final)
+ks_test <- ks.test(datos_std, "pnorm")
+
+cat("=== PRUEBA DE KOLMOGOROV-SMIRNOV ===\n")
+cat("Estadistico D:", round(ks_test$statistic, 4), "\n")
+cat("Valor p:", ks_test$p.value, "\n")
+
+# Interpretar resultado
+if(ks_test$p.value > 0.05) {
+  cat("Conclusion: Los datos SON NORMALES (p > 0.05)\n")
+} else {
+  cat("Conclusion: Los datos NO SON NORMALES (p <= 0.05)\n")
+}
+```
+
+### Actividad 
+
+Se deben ejecutar las pruebas de normalidad y completar:
+
+Prueba de Shapiro-Wilk:
+
+Valor 
+p=0.0002190907
+
+p=0.0002190907
+
+Conclusión: Los datos NO SON NORMALES (p ≤ 0.05)
+
+Prueba de Kolmogorov-Smirnov:
+Valor 
+p = 0.06953239
+
+p=0.06953239
+
+Conclusión: Los datos SON NORMALES (p > 0.05)
+
+¿Los datos de Nota Final son normales?
+
+Hay resultados contradictorios. Según Shapiro-Wilk no son normales, pero según Kolmogorov-Smirnov sí lo son.
+
+# Visualizaciones Avanzadas
+
+## 9 Correlación
+
+```{r}
+vars_numericas <- datos[, c("Asistencia", "Examen_Interno_1",
+ "Examen_Interno_2", "Promedio_Tareas",
+ "Horas_Estudio", "Nota_Final")]
+
+matriz_cor <- cor(vars_numericas)
+round(matriz_cor, 2)
+```
+
+```{r}
+heatmap(matriz_cor,
+        col = colorRampPalette(c("#4D96FF", "white", "#FF6B6B"))(20),
+        symm = TRUE,
+        main = "Mapa de Calor - Correlaciones")
+```
+
+```{r}
+# Instalar si es necesario: install.packages("reshape2")
+library(reshape2)
+
+# Convertir matriz a formato largo
+matriz_largo <- melt(matriz_cor)
+colnames(matriz_largo) <- c("Variable1", "Variable2", "Correlacion")
+
+# Crear mapa de calor con ggplot2
+ggplot(matriz_largo, aes(x = Variable1, y = Variable2, fill = Correlacion)) +
+  geom_tile(color = "white") +
+  geom_text(aes(label = round(Correlacion, 2)), size = 3) +
+  scale_fill_gradient2(low = "#4D96FF", mid = "white", high = "#FF6B6B",
+                       midpoint = 0, limit = c(-1, 1)) +
+  labs(title = "Mapa de Calor - Matriz de Correlaciones",
+       x = "", y = "") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+
+
+### Actividad 
+
+# Grafico de Violın
+
+
+```{r}
+ggplot(datos, aes(x = Nivel_Asistencia, y = Nota_Final, fill = Nivel_Asistencia)) +
+  geom_violin(trim = FALSE, alpha = 0.7) +
+  geom_boxplot(width = 0.15, fill = "white") +
+  scale_fill_manual(values = c("#FF6B6B", "#FFA94D", "#6BCB77", "#4D96FF")) +
+  labs(title = "Distribucion de Nota Final por Nivel de Asistencia",
+       x = "Nivel de Asistencia",
+       y = "Nota del Examen Final") +
+  theme_minimal() +
+  theme(legend.position = "none")
+```
+
+```{r}
+# Grafico de violin por categoria de rendimiento
+ggplot(datos, aes(x = Rendimiento, y = Examen_Interno_1, fill = Rendimiento)) +
+  geom_violin(trim = FALSE, alpha = 0.7) +
+  geom_boxplot(width = 0.1, fill = "white") +
+  scale_fill_manual(values = c("#FF6B6B", "#FFA94D", "#FFD93D", "#6BCB77", "#4D96FF")) +
+  labs(title = "Distribucion de Examen Interno 1 por Rendimiento Final",
+       x = "Categoria de Rendimiento",
+       y = "Nota Examen Interno 1") +
+  theme_minimal() +
+  theme(legend.position = "none",
+        axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+### Actividad 
+
+Se debe observar el grafico de violın de Nota Final por Nivel de Asistencia y responder:
+
+1. ¿Cual nivel de asistencia muestra la distribucion mas concentrada (violın mas angosto)?
+
+El nivel "Excelente" muestra el violín más angosto, lo que indica que las notas finales de los estudiantes con asistencia excelente (91-100%) están más concentradas y tienen menos variabilidad.
+
+2. ¿En cual nivel de asistencia se observan las notas mas altas?
+
+El nivel "Excelente" muestra las notas más altas, con la mediana y la mayoría de los valores en la parte superior del rango. También se observa que a medida que aumenta el nivel de asistencia (de Bajo a Excelente), la distribución de notas se desplaza hacia valores más altos.
+
+3. ¿Que se puede concluir sobre la relaci´on entre asistencia y rendimiento?
+
+Existe una relación positiva clara entre asistencia y rendimiento académico:
+
+Los estudiantes con asistencia más baja tienden a tener notas más bajas y mayor variabilidad
+
+Los estudiantes con asistencia más alta (Excelente) tienden a tener notas más altas y más consistentes
+
+La mediana de las notas aumenta progresivamente con cada nivel de asistencia: Bajo < Regular < Bueno < Excelente
+
+La variabilidad (ancho del violín) disminuye a medida que aumenta la asistencia, indicando mayor consistencia en el rendimiento
+
+Conclusión general: La asistencia a clases es un fuerte predictor del rendimiento académico final, con estudiantes que asisten regularmente obteniendo mejores y más consistentes resultados.
+
+# 10 Analisis de Correlacion 
+
+## 10.1 Mapa de Calor (Heatmap) de Correlaciones
+
+```{r}
+# Seleccionar solo variables numericas
+vars_numericas <- datos[, c("Asistencia", "Examen_Interno_1", 
+                            "Examen_Interno_2", "Promedio_Tareas",
+                            "Horas_Estudio", "Nota_Final")]
+
+# Calcular matriz de correlacion
+matriz_cor <- cor(vars_numericas)
+
+# Mostrar la matriz
+round(matriz_cor, 2)
+```
+
+```{r}
+# Mapa de calor con corrplot
+corrplot(matriz_cor,
+         method = "color",
+         type = "upper",
+         addCoef.col = "black",
+         number.cex = 0.7,
+         tl.col = "black",
+         tl.srt = 45,
+         col = colorRampPalette(c("#FF6B6B", "white", "#4D96FF"))(100),
+         title = "Mapa de Calor - Correlaciones",
+         mar = c(0, 0, 2, 0))
+```
+```{r}
+
+# Convertir matriz a formato largo
+matriz_largo <- melt(matriz_cor)
+colnames(matriz_largo) <- c("Variable1", "Variable2", "Correlacion")
+
+# Crear heatmap con ggplot2
+ggplot(matriz_largo, aes(x = Variable1, y = Variable2, fill = Correlacion)) +
+  geom_tile(color = "white") +
+  geom_text(aes(label = round(Correlacion, 2)), size = 3) +
+  scale_fill_gradient2(low = "#FF6B6B", mid = "white", 
+                       high = "#4D96FF", midpoint = 0) +
+  labs(title = "Matriz de Correlacion") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+```
+
+Se debe observar el mapa de calor y responder:
+
+1. ¿Cuales dos variables tienen la correlacion mas alta?
+
+La correlación más alta entre variables diferentes es entre Asistencia y Nota_Final con un valor de 0.73. En segundo lugar están Examen_Interno_1 y Nota_Final (0.69) y Examen_Interno_2 y Nota_Final (0.69).
+
+2. ¿Existe alguna correlacion negativa?
+
+No, no existe ninguna correlación negativa en la matriz. Todos los valores son positivos, variando desde 0.17 hasta 1.00. El valor más bajo es entre Horas_Estudio y Promedio_Tareas (0.17).
+
+3. ¿Que variable tiene la correlacion mas fuerte con Nota Final?
+
+La Asistencia tiene la correlación más fuerte con Nota_Final, con un valor de 0.73. Esto indica una relación positiva fuerte: a mayor asistencia, mayor tiende a ser la nota final.
+
+RESUMEN DE LAS CORRELACIONES CON NOTA_FINAL:
+
+Asistencia: 0.73 (más fuerte)
+
+Examen_Interno_1: 0.69
+
+Examen_Interno_2: 0.69
+
+Promedio_Tareas: 0.67
+
+Horas_Estudio: 0.41 (más débil)
+
+Interpretación: La asistencia a clases es el factor que muestra la relación más fuerte con el rendimiento académico final, seguido de cerca por los exámenes internos.
+
+
+#  10.2 Grafico de Dispersion: Asistencia vs Nota Final
+
+```{r}
+plot(datos$Asistencia, datos$Nota_Final,
+     main = "Relacion entre Asistencia y Nota Final",
+     xlab = "Porcentaje de Asistencia",
+     ylab = "Nota del Examen Final",
+     col = "#4D96FF",
+     pch = 19,
+     cex = 0.7)
+
+# Agregar linea de tendencia
+abline(lm(Nota_Final ~ Asistencia, data = datos),
+       col = "red",
+       lwd = 2)
+```
+
+#  10.3 Calculo del Coeficiente de Correlacion
+
+```{r}
+# Calcular correlacion de Pearson
+correlacion <- cor(datos$Asistencia, datos$Nota_Final)
+cat("Coeficiente de correlacion (r):", round(correlacion, 4), "\n")
+
+# Prueba de significancia
+prueba_cor <- cor.test(datos$Asistencia, datos$Nota_Final)
+cat("Valor p:", prueba_cor$p.value, "\n")
+
+# Interpretar
+if(prueba_cor$p.value < 0.05) {
+  cat("La correlacion ES estadisticamente significativa\n")
+} else {
+  cat("La correlacion NO es significativa\n")
+}
+```
+
+###  Activadad
+
+Se debe calcular la correlacion entre Asistencia y Nota Final:
+
+Coeficiente r =  0.7256
+
+Valor p = 0 
+
+Tipo de correlaci´on (fuerte/moderada/deebil): Fuerte
+
+¿Es significativa? (Si / No): Si
+
+
+# 11 Regresión Lineal
+
+```{r}
+modelo <- lm(Nota_Final ~ Asistencia, data = datos)
+summary(modelo)
+```
+
+```{r}
+# Obtener coeficientes
+intercepto <- coef(modelo)[1]
+pendiente <- coef(modelo)[2]
+
+cat("=== ECUACION DEL MODELO ===\n")
+cat("Nota_Final =", round(intercepto, 2), "+", 
+    round(pendiente, 2), "* Asistencia\n\n")
+
+# Coeficiente de determinacion R^2
+r_cuadrado <- summary(modelo)$r.squared
+cat("R cuadrado (R^2):", round(r_cuadrado, 4), "\n")
+cat("Esto significa que la Asistencia explica el", 
+    round(r_cuadrado * 100, 1), "% de la variabilidad en la Nota Final\n")
+```
+### Actividad 
+
+Se debe crear el modelo de regresi´on y completar:
+
+esto pero en texto y que no se vea alterado Ecuación del modelo:
+
+Nota_Final = -25.19 + 1.06 × Asistencia
+
+R cuadrado  = 0.5266
+
+Interpretación: La Asistencia explica el 52.7% de la variabilidad en la nota final.
+
+# 11.3 Visualizar el Modelo de Regresion
+
+```{r}
+ggplot(datos, aes(x = Asistencia, y = Nota_Final)) +
+  geom_point(color = "#4D96FF", alpha = 0.5) +
+  geom_smooth(method = "lm", color = "red", se = TRUE) +
+  labs(
+    title = "Regresion Lineal: Nota Final vs Asistencia",
+    subtitle = paste("R^2 =", round(r_cuadrado, 4)),
+    x = "Porcentaje de Asistencia",
+    y = "Nota del Examen Final"
+  ) +
+  theme_minimal()
+
+```
+
+# 11.4 Realizar Predicciones
+
+```{r}
+# Crear datos para prediccion
+nuevos_datos <- data.frame(
+  Asistencia = c(60, 70, 80, 90, 100)
+)
+
+# Realizar predicciones
+predicciones <- predict(modelo, newdata = nuevos_datos)
+
+# Mostrar resultados
+cat("=== PREDICCIONES ===\n")
+for(i in 1:5) {
+  cat("Si la asistencia es", nuevos_datos$Asistencia[i],
+      "% -> Nota predicha:",
+      round(predicciones[i], 1), "\n")
+}
+```
+### Actividad 
+
+Se debe usar el modelo para predecir la nota de un estudiante que tiene 85% de asistencia:
+
+```{r}
+# Predecir para 85% de asistencia
+mi_prediccion <- data.frame(Asistencia = 85)
+resultado <- predict(modelo, newdata = mi_prediccion)
+cat("Nota predicha para 85% de asistencia:", round(resultado, 1), "\n")
+
+```
+La nota final predicha es de un 65. 
+
+
